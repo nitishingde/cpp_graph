@@ -54,15 +54,39 @@ public:
     int getIndex() {
         return mIndex;
     }
+
+    operator bool() {
+        return this->isValid();
+    }
+
+    bool isValid() {
+        return this->mpEdge != nullptr;
+    }
 };
 
 template<typename Edge>
 class Graph {
 public:
+    enum Type {
+        ADJACENCY_LIST,
+        ADJACENCY_MATRIX
+    };
+    Type mType = ADJACENCY_LIST;
     std::vector<std::vector<Node<Edge>>> mDataStore;
 
-    Graph(std::int32_t noOfNodes) noexcept {
-        mDataStore = std::vector<std::vector<Node<Edge>>>(noOfNodes, std::vector<Node<Edge>>());
+    Graph(std::int32_t noOfNodes, Type type = ADJACENCY_LIST) noexcept {
+        this->mType = type;
+        switch(type) {
+            case ADJACENCY_LIST:
+                this->mDataStore = std::vector<std::vector<Node<Edge>>>(noOfNodes, std::vector<Node<Edge>>());
+                break;
+            case ADJACENCY_MATRIX:
+                this->mDataStore = std::vector<std::vector<Node<Edge>>>(noOfNodes, std::vector<Node<Edge>>(noOfNodes));
+                for(auto &nodeList: this->mDataStore)
+                    for(std::uint32_t i = 0; i < nodeList.size(); ++i)
+                        nodeList[i].mIndex = i;
+                break;
+        }
     }
 
     Graph(const Graph<Edge> &other) = delete;
@@ -70,13 +94,16 @@ public:
 
     Graph(std::vector<std::vector<Node<Edge>>> &&graph) noexcept
         : mDataStore(std::move(graph)) {
+        this->mType = ADJACENCY_LIST;
     }
 
     Graph(Graph<Edge> &&other) noexcept
-        : mDataStore(std::move(other.mDataStore)) {
+        : mType(other.mType)
+        , mDataStore(std::move(other.mDataStore)) {
     }
 
     Graph<Edge>& operator=(Graph<Edge> &&other) noexcept {
+        this->mType = other.mType;
         this->mDataStore = std::move(other.mDataStore);
     }
 
