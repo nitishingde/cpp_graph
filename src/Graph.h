@@ -26,10 +26,10 @@ public:
         this->mpEdge = new Edge(*other.mpEdge);
     }
 
-    Node(Node<Edge> &&node) noexcept {
-        this->mIndex = node.mIndex;
-        this->mpEdge = node.mpEdge;
-        node.mpEdge = nullptr;
+    Node(Node<Edge> &&other) noexcept {
+        this->mIndex = other.mIndex;
+        this->mpEdge = other.mpEdge;
+        other.mpEdge = nullptr;
     }
 
     Node<Edge>& operator=(Node<Edge> &&other) {
