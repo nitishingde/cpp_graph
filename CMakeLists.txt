@@ -3,7 +3,13 @@ project(cpp_graph CXX)
 
 add_library(cpp_graph
     SHARED
-        src/Graph.cpp src/Graph.h
+        src/Graph.h src/Graph.cpp
+        src/CppGraph.h
+)
+
+target_include_directories(cpp_graph
+    PUBLIC
+        "${CMAKE_SOURCE_DIR}/src"
 )
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/unit_test")
