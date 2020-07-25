@@ -43,23 +43,23 @@ public:
         this->mpEdge = nullptr;
     }
 
-    bool operator<(const Node<Edge> &other) {
+    bool operator<(const Node<Edge> &other) const {
         return *this->mpEdge < *other.mpEdge;
     }
 
-    operator int() {
+    operator int() const {
         return mIndex;
     }
 
-    int getIndex() {
+    int getIndex() const {
         return mIndex;
     }
 
-    operator bool() {
+    operator bool() const {
         return this->isValid();
     }
 
-    bool isValid() {
+    bool isValid() const {
         return this->mpEdge != nullptr;
     }
 };
@@ -111,12 +111,28 @@ public:
         return this->mDataStore[index];
     }
 
+    const std::vector<Node<Edge>>& operator[](std::int32_t index) const {
+        return this->mDataStore[index];
+    }
+
     auto& getDataStore() {
+        return this->mDataStore;
+    }
+
+    auto& getDataStore() const {
         return this->mDataStore;
     }
 
     std::vector<Node<Edge>>& getNeighbours(const std::int32_t &node_index) {
         return this->mDataStore[node_index];
+    }
+
+    const std::vector<Node<Edge>>& getNeighbours(const std::int32_t &node_index) const {
+        return this->mDataStore[node_index];
+    }
+
+    std::size_t size() const {
+        return this->mDataStore.size();
     }
 };
 
