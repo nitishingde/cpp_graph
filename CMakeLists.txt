@@ -5,6 +5,7 @@ add_library(cpp_graph
     SHARED
         src/Graph.h src/Graph.cpp
         src/CppGraph.h
+        src/Algos.h
 )
 
 target_include_directories(cpp_graph
