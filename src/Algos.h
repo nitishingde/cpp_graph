@@ -8,11 +8,11 @@
 template <typename Edge>
 std::vector<std::int32_t> dfs(const Graph<Edge> &graph, const std::int32_t &node) {
     std::vector<std::int32_t> traversalPath;
-    traversalPath.reserve(graph.mDataStore.size());
-    std::vector<bool> isVisited(graph.mDataStore.size());
+    traversalPath.reserve(graph.size());
+    std::vector<bool> isVisited(graph.size());
 
     // core algorithm
-    std::function<void(const Graph<Edge>&,std::int32_t)> _dfs = nullptr;
+    std::function<void(const Graph<Edge>&, const std::int32_t&)> _dfs = nullptr;
     _dfs = [&traversalPath, &isVisited, &_dfs](const Graph<Edge> &graph, const std::int32_t &node) {
         if(isVisited[node]) return;
 
@@ -24,6 +24,7 @@ std::vector<std::int32_t> dfs(const Graph<Edge> &graph, const std::int32_t &node
             }
         }
     };
+
     _dfs(graph, node);
 
     return traversalPath;
