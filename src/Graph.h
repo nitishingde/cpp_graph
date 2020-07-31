@@ -178,7 +178,7 @@ namespace cpp_graph {
 
 /** Methods **/
     private:
-        bool isAdjacencyList() {
+        bool isAdjacencyList() const {
             return this->mType & LIST;
         }
 
