@@ -572,15 +572,15 @@ namespace cpp_graph {
                         deletedWeights[node] = true;
                     }
                 } else {
-//                    for(std::size_t node = 0; node < this->mWeightedAdjacencyMatrix.size(); ++node) {
-//                        for(std::size_t otherNode = 0; otherNode < this->mWeightedAdjacencyMatrix.size(); ++otherNode) {
-//                            if(!deletedWeights[otherNode]) {
-//                                delete this->mWeightedAdjacencyMatrix[node][otherNode];
-//                            }
-//                            this->mWeightedAdjacencyMatrix[node][otherNode] = nullptr;
-//                        }
-//                        deletedWeights[node] = true;
-//                    }
+                    for(std::size_t node = 0; node < this->mWeightedAdjacencyMatrix.size(); ++node) {
+                        for(std::size_t otherNode = 0; otherNode < this->mWeightedAdjacencyMatrix.size(); ++otherNode) {
+                            if(!deletedWeights[otherNode]) {
+                                delete this->mWeightedAdjacencyMatrix[node][otherNode];
+                            }
+                            this->mWeightedAdjacencyMatrix[node][otherNode] = nullptr;
+                        }
+                        deletedWeights[node] = true;
+                    }
                 }
             }
         }
