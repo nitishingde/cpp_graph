@@ -14,3 +14,5 @@ target_include_directories(cpp_graph
 )
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/unit_test")
+
+add_subdirectory("${CMAKE_SOURCE_DIR}/experiment")
