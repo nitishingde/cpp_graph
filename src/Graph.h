@@ -32,6 +32,8 @@ namespace cpp_graph {
         std::vector<std::vector<std::int32_t>> mNodeDataStore;
         std::vector<std::vector<EdgeWeight *>> mWeightDataStore;
 
+    protected:
+    public:
         class Edge {
         private:
             int32_t mSourceNode;
@@ -50,11 +52,11 @@ namespace cpp_graph {
                 return this->mpWeight;
             }
 
-            std::int32_t getSourceNode() {
+            std::int32_t getSourceNode() const {
                 return this->mSourceNode;
             }
 
-            std::int32_t getDestinationNode() {
+            std::int32_t getDestinationNode() const {
                 return this->mDestinationNode;
             }
         };
@@ -176,9 +178,6 @@ namespace cpp_graph {
                 }
             }
         };
-
-    protected:
-    public:
 
 /** Methods **/
     private:
@@ -336,6 +335,8 @@ namespace cpp_graph {
         std::vector<std::vector<EdgeData>> mWeightedAdjacencyList;
         std::vector<std::vector<EdgeWeight*>> mWeightedAdjacencyMatrix;
 
+    protected:
+    public:
         class Edge {
         private:
             int32_t mSourceNode;
@@ -354,11 +355,11 @@ namespace cpp_graph {
                 return this->mpWeight;
             }
 
-            std::int32_t getSourceNode() {
+            std::int32_t getSourceNode() const {
                 return this->mSourceNode;
             }
 
-            std::int32_t getDestinationNode() {
+            std::int32_t getDestinationNode() const {
                 return this->mDestinationNode;
             }
         };
@@ -519,9 +520,6 @@ namespace cpp_graph {
             }
         };
 
-    protected:
-    public:
-
 /** Methods **/
     private:
         bool isAdjacencyList() const {
@@ -655,7 +653,14 @@ namespace cpp_graph {
             }
         }
     };
+
 #endif
+    template<typename EdgeWeight = std::int8_t>
+    using Edge = typename Graph<EdgeWeight>::Edge;
+    template<typename EdgeWeight = std::int8_t>
+    using Iterable = typename Graph<EdgeWeight>::Iterable;
+    template<typename EdgeWeight = std::int8_t>
+    using iterator = typename Graph<EdgeWeight>::iterator;
 }
 
 #endif //CPP_GRAPH_GRAPH_H
