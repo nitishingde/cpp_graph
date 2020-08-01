@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <vector>
 #include <iterator>
-#include <stdio.h>
+#include <cstring>
 
 #define COMPONENT_BASED_IMPLEMENTATION 0
 
@@ -559,9 +559,9 @@ namespace cpp_graph {
 
         ~Graph() {
             if(this->isWeighted()) {
-                std::uint8_t deletedWeights[this->mWeightedAdjacencyList.size()];
-                memset(deletedWeights, 0, sizeof(deletedWeights));
                 if(this->isAdjacencyList()) {
+                    std::uint8_t deletedWeights[this->mWeightedAdjacencyList.size()];
+                    memset(deletedWeights, 0, sizeof(deletedWeights));
                     for(std::size_t node = 0; node < this->mWeightedAdjacencyList.size(); ++node) {
                         for(std::size_t i = 0; i < this->mWeightedAdjacencyList[node].size(); ++i) {
                             if(!deletedWeights[this->mWeightedAdjacencyList[node][i].getDestinationNode()]) {
@@ -572,6 +572,8 @@ namespace cpp_graph {
                         deletedWeights[node] = true;
                     }
                 } else {
+                    std::uint8_t deletedWeights[this->mWeightedAdjacencyMatrix.size()];
+                    memset(deletedWeights, 0, sizeof(deletedWeights));
                     for(std::size_t node = 0; node < this->mWeightedAdjacencyMatrix.size(); ++node) {
                         for(std::size_t otherNode = 0; otherNode < this->mWeightedAdjacencyMatrix.size(); ++otherNode) {
                             if(!deletedWeights[otherNode]) {
