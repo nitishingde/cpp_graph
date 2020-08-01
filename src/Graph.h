@@ -250,6 +250,10 @@ namespace cpp_graph {
             return this->iterateNeighbours(index);
         }
 
+        Iterable operator[](const std::int32_t &index) const {
+            return this->iterateNeighbours(index);
+        }
+
         void addEdge(const std::int32_t &sourceNode, const std::int32_t &destinationNode, EdgeWeight *pWeight = nullptr) {
             if(this->isWeighted() and pWeight == nullptr) {
                 throw "weight cannot be null in a weighted graph";
@@ -279,6 +283,10 @@ namespace cpp_graph {
 
         Iterable iterateNeighbours(const std::int32_t &nodeIndex) {
             return Iterable(this, nodeIndex);
+        }
+
+        Iterable iterateNeighbours(const std::int32_t &nodeIndex) const {
+            return Iterable(const_cast<Graph<EdgeWeight>*>(this), nodeIndex);
         }
 
         std::size_t size() const {
@@ -591,6 +599,10 @@ namespace cpp_graph {
             return this->iterateNeighbours(index);
         }
 
+        Iterable operator[](const std::int32_t &index) const {
+            return this->iterateNeighbours(index);
+        }
+
         void addEdge(const std::int32_t &sourceNode, const std::int32_t &destinationNode, EdgeWeight *pWeight = nullptr) {
             if(this->isWeighted() and pWeight == nullptr) {
                 throw "weight cannot be null in a weighted graph";
@@ -621,6 +633,10 @@ namespace cpp_graph {
 
         Iterable iterateNeighbours(const std::int32_t &nodeIndex) {
             return Iterable(this, nodeIndex);
+        }
+
+        Iterable iterateNeighbours(const std::int32_t &nodeIndex) const {
+            return Iterable(const_cast<Graph<EdgeWeight>*>(this), nodeIndex);
         }
 
         std::size_t size() const {
