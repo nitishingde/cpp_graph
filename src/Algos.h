@@ -58,54 +58,85 @@ namespace cpp_graph {
         return traversalPath;
     }
 
-    template<typename Edge>
-    std::vector<std::int32_t> bfs(const Graph <Edge> &graph, const std::int32_t &node) {
-        std::vector<std::int32_t> traversalPath;
-        traversalPath.reserve(graph.size());
-        std::vector<bool> isVisited(graph.size());
-        std::deque<std::int32_t> queue;
-        auto processNode = [&traversalPath, &isVisited, &queue](const std::int32_t &node) {
-            traversalPath.emplace_back(node);
-            isVisited[node] = true;
+    /**
+     * Breadth First Search on cpp_graph::Graph
+     * @tparam EdgeWeight datatype used by graph parameter
+     * @param graph cpp_graph::Graph
+     * @param node cpp_graph::Node
+     * @return tuple(std::vector<cpp_graph::Node> parents, std::vector<uint32_t> distances)
+     */
+    template<typename EdgeWeight>
+    auto bfs(const Graph<EdgeWeight> &graph, const Node &node) {
+        std::vector<Node> parents(graph.size(), -1);
+        std::vector<std::uint32_t> distances(graph.size(), UINT32_MAX);
+        std::deque<Node> queue;
+
+        //@macro
+        auto processNode = [&parents, &distances, &queue](const Node &node, const Node &parentNode) {
+            parents[node] = parentNode;
+            // (UINT32_MAX + 1) == 0, therefore for sourceNode, the distance becomes 0
+            distances[node] = distances[parentNode] + 1;
             queue.emplace_back(node);
         };
+        //@macro
+        auto isNodeVisited = [&parents](const Node &node) {
+            return parents[node] != Node(-1);
+        };
 
-        //core algorithm
-        processNode(node);
+        // core algorithm
+        processNode(node, node);
         for(; !queue.empty(); queue.pop_front()) {
             for(auto edge: graph.iterateNeighbours(queue.front())) {
-                if(!isVisited[edge.getDestinationNode()]) {
-                    processNode(edge.getDestinationNode());
+                if(!isNodeVisited(edge.getDestinationNode())) {
+                    processNode(edge.getDestinationNode(), edge.getSourceNode());
                 }
             }
         }
-
-        return traversalPath;
+        return std::make_tuple(parents, distances);
     }
 
-    template<typename STDGraph, typename Edge>
-    std::vector<std::int32_t> bfs(const STDGraph &graph, const std::int32_t &node, std::int32_t(*getDestinationNode)(const Edge &)) {
-        std::vector<std::int32_t> traversalPath;
-        traversalPath.reserve(graph.size());
-        std::vector<bool> isVisited(graph.size());
+    /**
+     * Breadth First Search on graph represented by std containers
+     * @tparam GraphDatum datatype used by graph parameter
+     * @param graph
+     * @param node cpp_graph::Node
+     * @param getDestinationNode lambda function that returns other node from a given sourceNode and adjacencyList index
+     * @return tuple(std::vector<cpp_graph::Node> parents, std::vector<uint32_t> distances)
+     */
+    template<typename GraphDatum>
+    auto bfs(
+        const std::vector<std::vector<GraphDatum>> &graph,
+        const Node &node,
+        const std::function<Node(const Node &, const size_t &)> &getDestinationNode
+    ) {
+        std::vector<Node> parents(graph.size(), -1);
+        std::vector<std::uint32_t> distances(graph.size(), UINT32_MAX);
         std::deque<std::int32_t> queue;
-        auto processNode = [&traversalPath, &isVisited, &queue](const std::int32_t &node) {
-            traversalPath.emplace_back(node);
-            isVisited[node] = true;
+
+        //@macro
+        auto processNode = [&parents, &distances, &queue](const Node &node, const Node &parentNode) {
+            parents[node] = parentNode;
+            // (UINT32_MAX + 1) == 0, therefore for sourceNode, the distance becomes 0
+            distances[node] = distances[parentNode] + 1;
             queue.emplace_back(node);
         };
+        //@macro
+        auto isNodeVisited = [&parents](const Node &node) {
+            return parents[node] != Node(-1);
+        };
 
-        //core algorithm
-        processNode(node);
+        // core algorithm
+        processNode(node, node);
         for(; !queue.empty(); queue.pop_front()) {
-            for(auto edge: graph[queue.front()]) {
-                if(!isVisited[getDestinationNode(edge)]) {
-                    processNode(getDestinationNode(edge));
+            auto sourceNode = queue.front();
+            for(size_t idx = 0; idx < graph[sourceNode].size(); ++idx) {
+                auto destinationNode = getDestinationNode(sourceNode, idx);
+                if(!isNodeVisited(destinationNode)) {
+                    processNode(destinationNode, sourceNode);
                 }
             }
         }
-
-        return traversalPath;
+        return std::make_tuple(parents, distances);
     }
 }
 

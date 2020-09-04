@@ -74,7 +74,7 @@ TEST_CASE("Test Depth First Search algorithm with std::container", "[dfs][std][L
 }
 
 TEST_CASE("Test Breadth First Search algorithm with cpp_graph::Graph", "[bfs][Graph][List][Unweighted][Directed]") {
-    cpp_graph::Graph<> graph(7, cpp_graph::LIST|cpp_graph::DIRECTED);
+    cpp_graph::Graph<> graph(8, cpp_graph::LIST|cpp_graph::DIRECTED);
     graph.addEdge(1, 2);
     graph.addEdge(1, 3);
     graph.addEdge(2, 4);
@@ -83,52 +83,23 @@ TEST_CASE("Test Breadth First Search algorithm with cpp_graph::Graph", "[bfs][Gr
     graph.addEdge(5, 6);
 
     SECTION("Graph based") {
-        std::string path;
-        for(auto index :bfs(graph, 1)) {
-            path += std::to_string(index);
-        }
-        CHECK((
-            path == "123456"
-            or path == "123465"
-            or path == "123546"
-            or path == "123564"
-            or path == "123645"
-            or path == "123654"
-            or path == "132456"
-            or path == "132465"
-            or path == "132546"
-            or path == "132564"
-            or path == "132645"
-            or path == "132654"
-        ));
-    }
+        auto parent_distance = cpp_graph::bfs(graph, 1);
 
-    SECTION("STDGraph based") {
-        std::string path;
-        auto traversalPath = cpp_graph::bfs<decltype(graph), cpp_graph::Edge<>>(
-            graph,
-            1,
-            [](const cpp_graph::Edge<> &edge) {
-                return edge.getDestinationNode();
-            }
-        );
-        for(auto index :traversalPath) {
-            path += std::to_string(index);
+        auto &parent = std::get<0>(parent_distance);
+        auto actualParent = std::vector<cpp_graph::Node>({-1, 1, 1, 1, 2, 3, 3, -1});
+        CHECK(parent.size() == graph.size());
+        CHECK(parent.size() == actualParent.size());
+        for(size_t i = 0; i < parent.size(); i++) {
+            CHECK(parent[i] == actualParent[i]);
         }
-        CHECK((
-            path == "123456"
-            or path == "123465"
-            or path == "123546"
-            or path == "123564"
-            or path == "123645"
-            or path == "123654"
-            or path == "132456"
-            or path == "132465"
-            or path == "132546"
-            or path == "132564"
-            or path == "132645"
-            or path == "132654"
-        ));
+
+        auto &distance = std::get<1>(parent_distance);
+        auto actualDistance = std::vector<std::uint32_t>({UINT32_MAX, 0, 1, 1, 2, 2, 2, UINT32_MAX});
+        CHECK(distance.size() == graph.size());
+        CHECK(distance.size() == actualDistance.size());
+        for(size_t i = 0; i < distance.size(); i++) {
+            CHECK(distance[i] == actualDistance[i]);
+        }
     }
 }
 
@@ -141,29 +112,27 @@ TEST_CASE("Test Breadth First Search algorithm with std::container", "[bfs][std]
     graph[3].emplace_back(std::make_pair(6, "36"));
     graph[5].emplace_back(std::make_pair(6, "56"));
 
-    std::string path;
-    auto pathTraversed = cpp_graph::bfs<decltype(graph), std::pair<std::int32_t, std::string>>(
+    auto parent_distance = cpp_graph::bfs(
         graph,
         1,
-        [](const std::pair<std::int32_t, std::string> &edge) {
-            return edge.first;
+        [&graph](const cpp_graph::Node &sourceNode, const size_t &index) {
+            return graph[sourceNode][index].first;
         }
     );
-    for(auto index: pathTraversed) {
-        path += std::to_string(index);
+
+    auto &parent = std::get<0>(parent_distance);
+    auto actualParent = std::vector<cpp_graph::Node>({-1, 1, 1, 1, 2, 3, 3, -1});
+    CHECK(parent.size() == graph.size());
+    CHECK(parent.size() == actualParent.size());
+    for(size_t i = 0; i < parent.size(); i++) {
+        CHECK(parent[i] == actualParent[i]);
     }
-    CHECK((
-        path == "123456"
-        or path == "123465"
-        or path == "123546"
-        or path == "123564"
-        or path == "123645"
-        or path == "123654"
-        or path == "132456"
-        or path == "132465"
-        or path == "132546"
-        or path == "132564"
-        or path == "132645"
-        or path == "132654"
-    ));
+
+    auto &distance = std::get<1>(parent_distance);
+    auto actualDistance = std::vector<std::uint32_t>({UINT32_MAX, 0, 1, 1, 2, 2, 2, UINT32_MAX});
+    CHECK(distance.size() == graph.size());
+    CHECK(distance.size() == actualDistance.size());
+    for(size_t i = 0; i < distance.size(); i++) {
+        CHECK(distance[i] == actualDistance[i]);
+    }
 }

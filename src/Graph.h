@@ -10,6 +10,8 @@
 #define COMPONENT_BASED_IMPLEMENTATION 0
 
 namespace cpp_graph {
+    using Node = std::int32_t;
+
     enum Type {
         MATRIX = 0,
         LIST = 1,
