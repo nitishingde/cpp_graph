@@ -82,24 +82,22 @@ TEST_CASE("Test Breadth First Search algorithm with cpp_graph::Graph", "[bfs][Gr
     graph.addEdge(3, 6);
     graph.addEdge(5, 6);
 
-    SECTION("Graph based") {
-        auto parent_distance = cpp_graph::bfs(graph, 1);
+    auto parent_distance = cpp_graph::bfs(graph, 1);
 
-        auto &parent = std::get<0>(parent_distance);
-        auto actualParent = std::vector<cpp_graph::Node>({-1, 1, 1, 1, 2, 3, 3, -1});
-        CHECK(parent.size() == graph.size());
-        CHECK(parent.size() == actualParent.size());
-        for(size_t i = 0; i < parent.size(); i++) {
-            CHECK(parent[i] == actualParent[i]);
-        }
+    auto &parent = std::get<0>(parent_distance);
+    auto actualParent = std::vector<cpp_graph::Node>({-1, 1, 1, 1, 2, 3, 3, -1});
+    CHECK(parent.size() == graph.size());
+    CHECK(parent.size() == actualParent.size());
+    for(size_t i = 0; i < parent.size(); i++) {
+        CHECK(parent[i] == actualParent[i]);
+    }
 
-        auto &distance = std::get<1>(parent_distance);
-        auto actualDistance = std::vector<std::uint32_t>({UINT32_MAX, 0, 1, 1, 2, 2, 2, UINT32_MAX});
-        CHECK(distance.size() == graph.size());
-        CHECK(distance.size() == actualDistance.size());
-        for(size_t i = 0; i < distance.size(); i++) {
-            CHECK(distance[i] == actualDistance[i]);
-        }
+    auto &distance = std::get<1>(parent_distance);
+    auto actualDistance = std::vector<std::uint32_t>({UINT32_MAX, 0, 1, 1, 2, 2, 2, UINT32_MAX});
+    CHECK(distance.size() == graph.size());
+    CHECK(distance.size() == actualDistance.size());
+    for(size_t i = 0; i < distance.size(); i++) {
+        CHECK(distance[i] == actualDistance[i]);
     }
 }
 
