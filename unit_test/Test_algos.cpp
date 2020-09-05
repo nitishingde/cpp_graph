@@ -11,38 +11,14 @@ TEST_CASE("Test Depth First Search algorithm with cpp_graph::Graph", "[dfs][Grap
     graph.addEdge(3, 6);
     graph.addEdge(5, 6);
 
-    SECTION("Graph based") {
-        std::string path;
-        for(auto index :cpp_graph::dfs(graph, 1)) {
-            path += std::to_string(index);
-        }
-        CHECK((
-            path == "124356"
-            or path == "124365"
-            or path == "135624"
-            or path == "136524"
-        ));
-    }
-
-    SECTION("STDGraph based") {
-        std::string path;
-        auto traversalPath = cpp_graph::dfs<decltype(graph), cpp_graph::Edge<>>(
-            graph,
-            1,
-            [](const cpp_graph::Edge<> &edge) {
-                return edge.getDestinationNode();
-            }
-        );
-        for(auto index :traversalPath) {
-            path += std::to_string(index);
-        }
-        CHECK((
-            path == "124356"
-            or path == "124365"
-            or path == "135624"
-            or path == "136524"
-        ));
-    }
+    auto times = cpp_graph::dfs(graph, 1);
+    std::vector<uint32_t> &timeIn = std::get<0>(times);
+    std::vector<uint32_t> &timeOut = std::get<1>(times);
+    CHECK(cpp_graph::isDescendant(2, 1, timeIn, timeOut));
+    CHECK(cpp_graph::isDescendant(3, 1, timeIn, timeOut));
+    CHECK(cpp_graph::isDescendant(4, 2, timeIn, timeOut));
+    CHECK(cpp_graph::isDescendant(5, 3, timeIn, timeOut));
+    CHECK(cpp_graph::isDescendant(6, 3, timeIn, timeOut));
 }
 
 TEST_CASE("Test Depth First Search algorithm with std::container", "[dfs][std][List][Unweighted][Directed]") {
@@ -54,23 +30,21 @@ TEST_CASE("Test Depth First Search algorithm with std::container", "[dfs][std][L
     graph[3].emplace_back(std::make_pair(6, "36"));
     graph[5].emplace_back(std::make_pair(6, "56"));
 
-    std::string path;
-    auto traversalPath = cpp_graph::dfs<decltype(graph), std::pair<std::int32_t, std::string>>(
+    auto times = cpp_graph::dfs(
         graph,
         1,
-        [](const std::pair<std::int32_t, std::string> &edge) {
-            return edge.first;
+        [&graph](const cpp_graph::Node &node, const size_t &index) {
+            return graph[node][index].first;
         }
     );
-    for(auto index: traversalPath) {
-        path += std::to_string(index);
-    }
-    CHECK((
-        path == "124356"
-        or path == "124365"
-        or path == "135624"
-        or path == "136524"
-    ));
+
+    std::vector<uint32_t> &timeIn = std::get<0>(times);
+    std::vector<uint32_t> &timeOut = std::get<1>(times);
+    CHECK(cpp_graph::isDescendant(2, 1, timeIn, timeOut));
+    CHECK(cpp_graph::isDescendant(3, 1, timeIn, timeOut));
+    CHECK(cpp_graph::isDescendant(4, 2, timeIn, timeOut));
+    CHECK(cpp_graph::isDescendant(5, 3, timeIn, timeOut));
+    CHECK(cpp_graph::isDescendant(6, 3, timeIn, timeOut));
 }
 
 TEST_CASE("Test Breadth First Search algorithm with cpp_graph::Graph", "[bfs][Graph][List][Unweighted][Directed]") {

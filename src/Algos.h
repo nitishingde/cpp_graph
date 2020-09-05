@@ -8,55 +8,91 @@
 #include <functional>
 
 namespace cpp_graph {
+    /**
+     * Depth First Search on cpp_graph::Graph
+     * @tparam EdgeWeight datatype used by graph parameter
+     * @param graph cpp_graph::Graph
+     * @param node cpp_graph::Node
+     * @return tuple(std::vector<cpp_graph::Node> timeIn, std::vector<uint32_t> timeOut)
+     */
     template<typename EdgeWeight>
-    std::vector<std::int32_t> dfs(const Graph <EdgeWeight> &graph, const std::int32_t &node) {
-        std::vector<std::int32_t> traversalPath;
-        traversalPath.reserve(graph.size());
-        std::vector<bool> isVisited(graph.size());
+    auto dfs(const Graph <EdgeWeight> &graph, const Node &node) {
+        std::vector<uint32_t> timeIn(graph.size(), 0);
+        std::vector<uint32_t> timeOut(graph.size(), 0);
+        uint32_t timer = 0;
+        std::vector<DfsColour> colour(graph.size(), DfsColour::WHITE);
 
         // core algorithm
-        std::function<void(const Graph<EdgeWeight> &, const std::int32_t &)> _dfs = nullptr;
-        _dfs = [&traversalPath, &isVisited, &_dfs](const Graph<EdgeWeight> &graph, const std::int32_t &node) {
-            if(isVisited[node]) return;
-
-            isVisited[node] = true;
-            traversalPath.emplace_back(node);
+        std::function<void(const Graph<EdgeWeight> &, const Node &)> _dfs = nullptr;
+        _dfs = [&timeIn, &timeOut, &timer, &colour, &_dfs](const Graph<EdgeWeight> &graph, const Node &node) {
+            timeIn[node] = timer++;
+            colour[node] = DfsColour::GRAY;
             for(auto edge: graph.iterateNeighbours(node)) {
-                if(!isVisited[edge.getDestinationNode()]) {
+                if(colour[edge.getDestinationNode()] == DfsColour::WHITE) {
                     _dfs(graph, edge.getDestinationNode());
                 }
             }
+            timeOut[node] = timer++;
+            colour[node] = DfsColour::BLACK;
         };
 
         _dfs(graph, node);
 
-        return traversalPath;
+        return std::make_tuple(timeIn, timeOut);
     }
 
-    template<typename STDGraph, typename Edge>
-    std::vector<std::int32_t> dfs(const STDGraph &graph, const std::int32_t &node, std::int32_t(*getDestinationNode)(const Edge &)) {
-        std::vector<std::int32_t> traversalPath;
-        traversalPath.reserve(graph.size());
-        std::vector<bool> isVisited(graph.size());
+    /**
+     * Depth First Search on graph represented by std containers
+     * @tparam GraphDatum
+     * @param graph
+     * @param node cpp_graph::Node
+     * @param getDestinationNode lambda function that returns other node from a given sourceNode and adjacencyList index
+     * @return tuple(std::vector<cpp_graph::Node> timeIn, std::vector<uint32_t> timeOut)
+     */
+    template<typename GraphDatum>
+    auto dfs(
+        const std::vector<std::vector<GraphDatum>> &graph,
+        const Node &node,
+        const std::function<Node(const Node &, const size_t &)> &getDestinationNode
+    ) {
+        std::vector<uint32_t> timeIn(graph.size(), 0);
+        std::vector<uint32_t> timeOut(graph.size(), 0);
+        uint32_t timer = 0;
+        std::vector<DfsColour> colour(graph.size(), DfsColour::WHITE);
 
         // core algorithm
-        std::function<void(const STDGraph &, const std::int32_t &)> _dfs = nullptr;
-        _dfs = [&getDestinationNode, &traversalPath, &isVisited, &_dfs](const STDGraph &graph, const std::int32_t &node) {
-            if(isVisited[node]) return;
-
-            isVisited[node] = true;
-            traversalPath.emplace_back(node);
-            for(auto edge: graph[node]) {
-                if(!isVisited[getDestinationNode(edge)]) {
-                    _dfs(graph, getDestinationNode(edge));
+        std::function<void(const std::vector<std::vector<GraphDatum>> &, const Node &)> _dfs = nullptr;
+        _dfs = [&getDestinationNode, &timeIn, &timeOut, &timer, &colour, &_dfs](const std::vector<std::vector<GraphDatum>> &graph, const Node &node) {
+            timeIn[node] = timer++;
+            colour[node] = DfsColour::GRAY;
+            for(size_t idx = 0; idx < graph[node].size(); ++idx) {
+                auto destinationNode = getDestinationNode(node, idx);
+                if(colour[destinationNode] == DfsColour::WHITE) {
+                    _dfs(graph, destinationNode);
                 }
             }
+            timeOut[node] = timer++;
+            colour[node] = DfsColour::BLACK;
         };
 
         _dfs(graph, node);
 
-        return traversalPath;
+        return std::make_tuple(timeIn, timeOut);
     }
+
+    bool isAncestor(
+        const Node &ancestor,
+        const Node &descendant,
+        const std::vector<uint32_t> &timeIn,
+        const std::vector<uint32_t> &timeOut
+    );
+
+    bool isDescendant(
+        const Node &descendant,
+        const Node &ancestor,
+        const std::vector<uint32_t> &timeIn,
+        const std::vector<uint32_t> &timeOut
+    );
 
     /**
      * Breadth First Search on cpp_graph::Graph

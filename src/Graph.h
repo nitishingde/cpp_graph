@@ -19,6 +19,11 @@ namespace cpp_graph {
         DIRECTED = 4,
     };
 
+    enum DfsColour {
+        WHITE = 0,
+        GRAY = 1,
+        BLACK = 2
+    };
 #if COMPONENT_BASED_IMPLEMENTATION
 
     template<typename EdgeWeight = std::int8_t>
