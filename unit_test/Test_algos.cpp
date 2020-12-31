@@ -33,8 +33,8 @@ TEST_CASE("Test Depth First Search algorithm with std::container", "[dfs][std][L
     auto times = cpp_graph::dfs(
         graph,
         1,
-        [&graph](const cpp_graph::Node &node, const size_t &index) {
-            return graph[node][index].first;
+        [](const auto &graphDatum) {
+            return graphDatum.first;
         }
     );
 
@@ -87,8 +87,8 @@ TEST_CASE("Test Breadth First Search algorithm with std::container", "[bfs][std]
     auto parent_distance = cpp_graph::bfs(
         graph,
         1,
-        [&graph](const cpp_graph::Node &sourceNode, const size_t &index) {
-            return graph[sourceNode][index].first;
+        [](const auto &graphDatum) {
+            return graphDatum.first;
         }
     );
 

@@ -42,59 +42,6 @@ namespace cpp_graph {
     }
 
     /**
-     * Depth First Search on graph represented by std containers
-     * @tparam GraphDatum
-     * @param graph
-     * @param node cpp_graph::Node
-     * @param getDestinationNode lambda function that returns other node from a given sourceNode and adjacencyList index
-     * @return tuple(std::vector<cpp_graph::Node> timeIn, std::vector<uint32_t> timeOut)
-     */
-    template<typename GraphDatum>
-    auto dfs(
-        const std::vector<std::vector<GraphDatum>> &graph,
-        const Node &node,
-        const std::function<Node(const Node &, const size_t &)> &getDestinationNode
-    ) {
-        std::vector<uint32_t> timeIn(graph.size(), 0);
-        std::vector<uint32_t> timeOut(graph.size(), 0);
-        uint32_t timer = 0;
-        std::vector<DfsColour> colour(graph.size(), DfsColour::WHITE);
-
-        // core algorithm
-        std::function<void(const std::vector<std::vector<GraphDatum>> &, const Node &)> _dfs = nullptr;
-        _dfs = [&getDestinationNode, &timeIn, &timeOut, &timer, &colour, &_dfs](const std::vector<std::vector<GraphDatum>> &graph, const Node &node) {
-            timeIn[node] = timer++;
-            colour[node] = DfsColour::GRAY;
-            for(size_t idx = 0; idx < graph[node].size(); ++idx) {
-                auto destinationNode = getDestinationNode(node, idx);
-                if(colour[destinationNode] == DfsColour::WHITE) {
-                    _dfs(graph, destinationNode);
-                }
-            }
-            timeOut[node] = timer++;
-            colour[node] = DfsColour::BLACK;
-        };
-
-        _dfs(graph, node);
-
-        return std::make_tuple(timeIn, timeOut);
-    }
-
-    bool isAncestor(
-        const Node &ancestor,
-        const Node &descendant,
-        const std::vector<uint32_t> &timeIn,
-        const std::vector<uint32_t> &timeOut
-    );
-
-    bool isDescendant(
-        const Node &descendant,
-        const Node &ancestor,
-        const std::vector<uint32_t> &timeIn,
-        const std::vector<uint32_t> &timeOut
-    );
-
-    /**
      * Breadth First Search on cpp_graph::Graph
      * @tparam EdgeWeight datatype used by graph parameter
      * @param graph cpp_graph::Graph
@@ -131,20 +78,72 @@ namespace cpp_graph {
         return std::make_tuple(parents, distances);
     }
 
+    /** -----------------------------------------------------------------------------std containers----------------------------------------------------------------------------- **/
+
+    /**
+     * Find if a node is a ancestor of other node from timeIn and timeOut data
+     * @param ancestor cpp_graph::Node
+     * @param descendant cpp_graph::Node
+     * @param timeIn
+     * @param timeOut
+     * @return bool
+     */
+    bool isAncestor(const Node &ancestor, const Node &descendant, const std::vector<uint32_t> &timeIn, const std::vector<uint32_t> &timeOut);
+
+    /**
+     * Find if a node is a descendant of other node from timeIn and timeOut data
+     * @param descendant cpp_graph::Node
+     * @param ancestor cpp_graph::Node
+     * @param timeIn
+     * @param timeOut
+     * @return bool
+     */
+    bool isDescendant(const Node &descendant, const Node &ancestor, const std::vector<uint32_t> &timeIn, const std::vector<uint32_t> &timeOut);
+
+    /**
+     * Depth First Search on graph represented by std containers
+     * @tparam Graph 2d std container
+     * @param graph adjacency list
+     * @param node cpp_graph::Node
+     * @param getDestinationNode lambda function that extracts the destination node from GraphDatum
+     * @return tuple(std::vector<uint32_t> timeIn, std::vector<uint32_t> timeOut)
+     */
+    template<typename Graph, typename InnerContainer = typename Graph::value_type, typename GraphDatum = typename InnerContainer::value_type>
+    auto dfs(const Graph &graph, const Node &node, Node(*getDestinationNode)(const typename InnerContainer::value_type &)) {
+        std::vector<uint32_t> timeIn(graph.size(), 0);
+        std::vector<uint32_t> timeOut(graph.size(), 0);
+        uint32_t timer = 0;
+        std::vector<DfsColour> colour(graph.size(), DfsColour::WHITE);
+
+        // core algorithm
+        std::function<void(const Graph &, const Node &)> _dfs = nullptr;
+        _dfs = [&getDestinationNode, &timeIn, &timeOut, &timer, &colour, &_dfs](const Graph &graph, const Node &node) {
+            timeIn[node] = timer++;
+            colour[node] = DfsColour::GRAY;
+            for(const GraphDatum &graphDatum: graph[node]) {
+                if(auto destinationNode = getDestinationNode(graphDatum); colour[destinationNode] == DfsColour::WHITE) {
+                    _dfs(graph, destinationNode);
+                }
+            }
+            timeOut[node] = timer++;
+            colour[node] = DfsColour::BLACK;
+        };
+
+        _dfs(graph, node);
+
+        return std::make_tuple(timeIn, timeOut);
+    }
+
     /**
      * Breadth First Search on graph represented by std containers
-     * @tparam GraphDatum datatype used by graph parameter
-     * @param graph
+     * @tparam Graph 2d std container
+     * @param graph adjacency list
      * @param node cpp_graph::Node
-     * @param getDestinationNode lambda function that returns other node from a given sourceNode and adjacencyList index
+     * @param getDestinationNode lambda function that extracts the destination node from GraphDatum
      * @return tuple(std::vector<cpp_graph::Node> parents, std::vector<uint32_t> distances)
      */
-    template<typename GraphDatum>
-    auto bfs(
-        const std::vector<std::vector<GraphDatum>> &graph,
-        const Node &node,
-        const std::function<Node(const Node &, const size_t &)> &getDestinationNode
-    ) {
+    template<typename Graph, typename InnerContainer = typename Graph::value_type, typename GraphDatum = typename InnerContainer::value_type>
+    auto bfs(const Graph &graph, const Node &node, Node(*getDestinationNode)(const typename InnerContainer::value_type &)) {
         std::vector<Node> parents(graph.size(), -1);
         std::vector<std::uint32_t> distances(graph.size(), UINT32_MAX);
         std::deque<std::int32_t> queue;
@@ -165,9 +164,8 @@ namespace cpp_graph {
         processNode(node, node);
         for(; !queue.empty(); queue.pop_front()) {
             auto sourceNode = queue.front();
-            for(size_t idx = 0; idx < graph[sourceNode].size(); ++idx) {
-                auto destinationNode = getDestinationNode(sourceNode, idx);
-                if(!isNodeVisited(destinationNode)) {
+            for(const auto &graphDatum: graph[sourceNode]) {
+                if(auto destinationNode = getDestinationNode(graphDatum); !isNodeVisited(destinationNode)) {
                     processNode(destinationNode, sourceNode);
                 }
             }
